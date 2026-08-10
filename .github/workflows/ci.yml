@@ -1,0 +1,52 @@
+name: CI
+
+on:
+  push:
+    branches:
+      - main
+      - learning
+  pull_request:
+    branches:
+      - main
+      - learning
+
+jobs:
+
+  build-services:
+    name: Build ${{ matrix.service }}
+    runs-on: ubuntu-latest
+
+    strategy:
+      fail-fast: false
+      matrix:
+        service:
+          - eureka-server
+          - auth-service
+          - patient-service
+          - doctor-service
+          - appointment-service
+          - clinical-service
+          - billing-service
+          - pharmacy-service
+          - analytics-service
+          - api-gateway
+
+    steps:
+
+      - name: Checkout source code
+        uses: actions/checkout@v4
+
+      - name: Setup Java
+        uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: '17'
+          cache: maven
+
+      - name: Build ${{ matrix.service }}
+        working-directory: ${{ matrix.service }}
+        run: mvn clean package -DskipTests
+
+      - name: Verify JAR
+        working-directory: ${{ matrix.service }}
+        run: ls -lah target/*.jar
