@@ -1,0 +1,72 @@
+name: Docker Build
+
+on:
+  push:
+    branches:
+      - main
+      - learning
+
+permissions:
+  contents: read
+  packages: write
+
+jobs:
+
+  docker-build:
+    name: Build ${{ matrix.service }}
+
+    runs-on: ubuntu-latest
+
+    strategy:
+      fail-fast: false
+      matrix:
+        service:
+          - eureka-server
+          - auth-service
+          - patient-service
+          - doctor-service
+          - appointment-service
+          - clinical-service
+          - billing-service
+          - pharmacy-service
+          - analytics-service
+          - api-gateway
+
+    steps:
+
+      - name: Checkout source code
+        uses: actions/checkout@v4
+
+      - name: Setup Java
+        uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: '17'
+          cache: maven
+
+      - name: Build Maven
+        working-directory: ${{ matrix.service }}
+        run: mvn clean package -DskipTests
+
+      - name: Login to GHCR
+        uses: docker/login-action@v3
+        with:
+          registry: ghcr.io
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Convert repository name to lowercase
+        id: repo
+        run: echo "name=ghcr.io/${GITHUB_REPOSITORY,,}" >> "$GITHUB_OUTPUT"
+
+      - name: Build Docker image
+        run: |
+          docker build \
+            -t ${{ steps.repo.outputs.name }}/${{ matrix.service }}:${{ github.sha }} \
+            -t ${{ steps.repo.outputs.name }}/${{ matrix.service }}:latest \
+            ./${{ matrix.service }}
+
+      - name: Push Docker image
+        run: |
+          docker push ${{ steps.repo.outputs.name }}/${{ matrix.service }}:${{ github.sha }}
+          docker push ${{ steps.repo.outputs.name }}/${{ matrix.service }}:latest
