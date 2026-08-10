@@ -1,53 +1,76 @@
 services:
+
   postgres:
-    ports: []
+    ports: !reset []
 
   eureka-server:
-    ports: []
+    build: !reset null
+    image: ${IMAGE_PREFIX}/eureka-server:latest
+    ports: !reset []
 
   auth-service:
-    ports: []
+    build: !reset null
+    image: ${IMAGE_PREFIX}/auth-service:latest
+    ports: !reset []
     environment:
       SPRING_PROFILES_ACTIVE: prod
 
   patient-service:
-    ports: []
+    build: !reset null
+    image: ${IMAGE_PREFIX}/patient-service:latest
+    ports: !reset []
     environment:
       SPRING_PROFILES_ACTIVE: prod
 
   doctor-service:
-    ports: []
+    build: !reset null
+    image: ${IMAGE_PREFIX}/doctor-service:latest
+    ports: !reset []
     environment:
       SPRING_PROFILES_ACTIVE: prod
 
   clinical-service:
-    ports: []
+    build: !reset null
+    image: ${IMAGE_PREFIX}/clinical-service:latest
+    ports: !reset []
     environment:
       SPRING_PROFILES_ACTIVE: prod
 
   billing-service:
-    ports: []
+    build: !reset null
+    image: ${IMAGE_PREFIX}/billing-service:latest
+    ports: !reset []
     environment:
       SPRING_PROFILES_ACTIVE: prod
 
   appointment-service:
-    ports: []
+    build: !reset null
+    image: ${IMAGE_PREFIX}/appointment-service:latest
+    ports: !reset []
     environment:
       SPRING_PROFILES_ACTIVE: prod
 
   pharmacy-service:
-    ports: []
+    build: !reset null
+    image: ${IMAGE_PREFIX}/pharmacy-service:latest
+    ports: !reset []
     environment:
       SPRING_PROFILES_ACTIVE: prod
 
   analytics-service:
-    ports: []
+    build: !reset null
+    image: ${IMAGE_PREFIX}/analytics-service:latest
+    ports: !reset []
     environment:
       SPRING_PROFILES_ACTIVE: prod
 
   api-gateway:
+    build: !reset null
+    image: ${IMAGE_PREFIX}/api-gateway:latest
+    ports:
+      - "4004:4004"
     environment:
       SPRING_PROFILES_ACTIVE: prod
 
   kafka:
-    ports: []
+    ports: !reset []
