@@ -1,20 +1,82 @@
-name: Build and Deploy Analytics Service
+name: Build and Deploy Microservices
 
 on:
   push:
     branches:
       - learning
     paths:
+      - 'auth-service/**'
+      - 'doctor-service/**'
+      - 'patient-service/**'
+      - 'clinical-service/**'
+      - 'billing-service/**'
+      - 'appointment-service/**'
+      - 'pharmacy-service/**'
       - 'analytics-service/**'
+      - 'docker-compose.yml'
+      - 'docker-compose.prod.yml'
       - '.github/workflows/cd.yml'
 
+permissions:
+  contents: read
+  packages: write
+
 jobs:
+  detect-changes:
+    name: Detect changed services
+    runs-on: ubuntu-latest
+    outputs:
+      services: ${{ steps.filter.outputs.services }}
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 2
+
+      - name: Detect changed services
+        id: filter
+        shell: bash
+        run: |
+          services=()
+
+          for service in \
+            auth-service \
+            doctor-service \
+            patient-service \
+            clinical-service \
+            billing-service \
+            appointment-service \
+            pharmacy-service \
+            analytics-service
+          do
+            if git diff --quiet HEAD^ HEAD -- "$service"; then
+              echo "$service: no changes"
+            else
+              echo "$service: changed"
+              services+=("$service")
+            fi
+          done
+
+          if [ ${#services[@]} -eq 0 ]; then
+            echo "No microservice changes detected."
+            echo 'services=[]' >> "$GITHUB_OUTPUT"
+          else
+            json=$(printf '%s\n' "${services[@]}" | jq -R . | jq -s -c .)
+            echo "Changed services: $json"
+            echo "services=$json" >> "$GITHUB_OUTPUT"
+          fi
+
   build-and-push:
+    name: Build and Push
+    needs: detect-changes
+    if: needs.detect-changes.outputs.services != '[]'
     runs-on: ubuntu-latest
 
-    permissions:
-      contents: read
-      packages: write
+    strategy:
+      fail-fast: false
+      matrix:
+        service: ${{ fromJson(needs.detect-changes.outputs.services) }}
 
     steps:
       - name: Checkout
@@ -27,8 +89,8 @@ jobs:
           distribution: 'temurin'
           cache: maven
 
-      - name: Build analytics-service
-        working-directory: ./analytics-service
+      - name: Build ${{ matrix.service }}
+        working-directory: ./${{ matrix.service }}
         run: mvn clean package -DskipTests
 
       - name: Log in to GHCR
@@ -38,36 +100,179 @@ jobs:
           username: ${{ github.actor }}
           password: ${{ secrets.GITHUB_TOKEN }}
 
-      - name: Build and push analytics-service
+      - name: Build and push ${{ matrix.service }}
         uses: docker/build-push-action@v6
         with:
-          context: ./analytics-service
+          context: ./${{ matrix.service }}
           push: true
           tags: |
-            ghcr.io/tranhuong0204/mscnptpm/analytics-service:latest
-            ghcr.io/tranhuong0204/mscnptpm/analytics-service:${{ github.sha }}
+            ghcr.io/tranhuong0204/mscnptpm/${{ matrix.service }}:latest
+            ghcr.io/tranhuong0204/mscnptpm/${{ matrix.service }}:${{ github.sha }}
 
   deploy:
-    needs: build-and-push
+    name: Deploy changed services
+    needs:
+      - detect-changes
+      - build-and-push
+    if: needs.detect-changes.outputs.services != '[]'
     runs-on: self-hosted
 
     steps:
-      - name: Deploy analytics-service
+      - name: Deploy services
+        shell: bash
+        env:
+          SERVICES: ${{ needs.detect-changes.outputs.services }}
         run: |
+          set -e
+
           cd /opt/patient-management
 
-          docker compose \
-            -f docker-compose.yml \
-            -f docker-compose.prod.yml \
-            pull analytics-service
+          echo "Services to deploy:"
+          echo "$SERVICES"
 
-          docker compose \
-            -f docker-compose.yml \
-            -f docker-compose.prod.yml \
-            up -d --force-recreate analytics-service
+          echo "$SERVICES" | jq -r '.[]' | while read -r service; do
+            echo "========================================"
+            echo "Deploying: $service"
+            echo "========================================"
 
-      - name: Check health
+            docker compose \
+              -f docker-compose.yml \
+              -f docker-compose.prod.yml \
+              pull "$service"
+
+            docker compose \
+              -f docker-compose.yml \
+              -f docker-compose.prod.yml \
+              up -d --force-recreate "$service"
+          done
+
+      - name: Wait for services
+        shell: bash
+        env:
+          SERVICES: ${{ needs.detect-changes.outputs.services }}
         run: |
-          sleep 10
-          docker inspect pm-analytics \
-            --format='Health={{.State.Health.Status}}'
+          set -e
+
+          cd /opt/patient-management
+
+          echo "$SERVICES" | jq -r '.[]' | while read -r service; do
+            echo "Waiting for $service..."
+
+            sleep 10
+
+            container=$(docker compose \
+              -f docker-compose.yml \
+              -f docker-compose.prod.yml \
+              ps -q "$service")
+
+            if [ -z "$container" ]; then
+              echo "ERROR: Container for $service was not found."
+              exit 1
+            fi
+
+            status=$(docker inspect "$container" \
+              --format='{{.State.Status}}')
+
+            health=$(docker inspect "$container" \
+              --format='{{if .State.Health}}{{.State.Health.Status}}{{else}}no-healthcheck{{end}}')
+
+            echo "$service:"
+            echo "  Status: $status"
+            echo "  Health: $health"
+
+            if [ "$status" != "running" ]; then
+              echo "ERROR: $service is not running."
+              docker logs "$container" --tail 100
+              exit 1
+            fi
+
+            if [ "$health" = "unhealthy" ]; then
+              echo "ERROR: $service is unhealthy."
+              docker logs "$container" --tail 100
+              exit 1
+            fi
+          done
+
+      - name: Deployment summary
+        shell: bash
+        env:
+          SERVICES: ${{ needs.detect-changes.outputs.services }}
+        run: |
+          echo "========================================"
+          echo "Deployment completed successfully"
+          echo "========================================"
+          echo "$SERVICES" | jq -r '.[]'
+
+#name: Build and Deploy Analytics Service
+#
+#on:
+#  push:
+#    branches:
+#      - learning
+#    paths:
+#      - 'analytics-service/**'
+#      - '.github/workflows/cd.yml'
+#
+#jobs:
+#  build-and-push:
+#    runs-on: ubuntu-latest
+#
+#    permissions:
+#      contents: read
+#      packages: write
+#
+#    steps:
+#      - name: Checkout
+#        uses: actions/checkout@v4
+#
+#      - name: Set up JDK 17
+#        uses: actions/setup-java@v4
+#        with:
+#          java-version: '17'
+#          distribution: 'temurin'
+#          cache: maven
+#
+#      - name: Build analytics-service
+#        working-directory: ./analytics-service
+#        run: mvn clean package -DskipTests
+#
+#      - name: Log in to GHCR
+#        uses: docker/login-action@v3
+#        with:
+#          registry: ghcr.io
+#          username: ${{ github.actor }}
+#          password: ${{ secrets.GITHUB_TOKEN }}
+#
+#      - name: Build and push analytics-service
+#        uses: docker/build-push-action@v6
+#        with:
+#          context: ./analytics-service
+#          push: true
+#          tags: |
+#            ghcr.io/tranhuong0204/mscnptpm/analytics-service:latest
+#            ghcr.io/tranhuong0204/mscnptpm/analytics-service:${{ github.sha }}
+#
+#  deploy:
+#    needs: build-and-push
+#    runs-on: self-hosted
+#
+#    steps:
+#      - name: Deploy analytics-service
+#        run: |
+#          cd /opt/patient-management
+#
+#          docker compose \
+#            -f docker-compose.yml \
+#            -f docker-compose.prod.yml \
+#            pull analytics-service
+#
+#          docker compose \
+#            -f docker-compose.yml \
+#            -f docker-compose.prod.yml \
+#            up -d --force-recreate analytics-service
+#
+#      - name: Check health
+#        run: |
+#          sleep 10
+#          docker inspect pm-analytics \
+#            --format='Health={{.State.Health.Status}}'
