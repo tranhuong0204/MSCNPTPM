@@ -34,6 +34,9 @@ jobs:
         with:
           fetch-depth: 2
 
+      - name: Install jq
+        run: sudo apt-get update && sudo apt-get install -y jq
+
       - name: Detect changed services
         id: filter
         shell: bash
