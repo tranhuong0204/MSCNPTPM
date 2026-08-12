@@ -1,4 +1,4 @@
-name: Build Analytics Service
+name: Build and Deploy Analytics Service
 
 on:
   push:
@@ -6,8 +6,6 @@ on:
       - learning
     paths:
       - 'analytics-service/**'
-      - 'docker-compose.yml'
-      - 'docker-compose.prod.yml'
       - '.github/workflows/cd.yml'
 
 jobs:
@@ -48,3 +46,28 @@ jobs:
           tags: |
             ghcr.io/tranhuong0204/mscnptpm/analytics-service:latest
             ghcr.io/tranhuong0204/mscnptpm/analytics-service:${{ github.sha }}
+
+  deploy:
+    needs: build-and-push
+    runs-on: self-hosted
+
+    steps:
+      - name: Deploy analytics-service
+        run: |
+          cd /opt/patient-management
+
+          docker compose \
+            -f docker-compose.yml \
+            -f docker-compose.prod.yml \
+            pull analytics-service
+
+          docker compose \
+            -f docker-compose.yml \
+            -f docker-compose.prod.yml \
+            up -d --force-recreate analytics-service
+
+      - name: Check health
+        run: |
+          sleep 10
+          docker inspect pm-analytics \
+            --format='Health={{.State.Health.Status}}'
