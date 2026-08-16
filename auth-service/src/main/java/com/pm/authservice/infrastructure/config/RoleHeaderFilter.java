@@ -29,6 +29,12 @@ public class RoleHeaderFilter extends OncePerRequestFilter {
             return;
         }
 
+        System.out.println("===== ROLE HEADER FILTER =====");
+        System.out.println("X-User-Id = " + request.getHeader("X-User-Id"));
+        System.out.println("X-User-Email = " + request.getHeader("X-User-Email"));
+        System.out.println("X-User-Role = " + request.getHeader("X-User-Role"));
+        System.out.println("URI = " + request.getRequestURI());
+
         String role = request.getHeader("X-User-Role");
         if (role == null || role.isBlank()) {
             role = request.getHeader("X-Role");
