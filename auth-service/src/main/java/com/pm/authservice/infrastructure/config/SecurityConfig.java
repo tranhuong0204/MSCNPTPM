@@ -2,6 +2,7 @@ package com.pm.authservice.infrastructure.config;
 
 import io.swagger.v3.oas.annotations.enums.SecuritySchemeType;
 import io.swagger.v3.oas.annotations.security.SecurityScheme;
+import jakarta.annotation.PostConstruct;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
@@ -23,6 +24,11 @@ import lombok.RequiredArgsConstructor;
 public class SecurityConfig {
 
     private final RoleHeaderFilter roleHeaderFilter;
+
+    @PostConstruct
+    public void testSecurityConfig() {
+        System.out.println("========== CUSTOM SECURITY CONFIG LOADED ==========");
+    }
 
     @Bean
     public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
