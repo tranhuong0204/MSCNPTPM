@@ -59,7 +59,7 @@ spring:
         - id: auth-public-route
           uri: ${services.auth.url}
           predicates:
-            - Path=/auth/login, /auth/signup, /auth/validate, /auth/refresh, /auth/reset
+            - Path=/auth/login, /auth/signup, /auth/validate, /auth/refresh, /auth/reset, /auth/loginByFace
           filters:
             - StripPrefix=1
 
