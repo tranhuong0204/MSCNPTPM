@@ -21,6 +21,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.multipart.MultipartFile;
 
 import java.io.IOException;
 import java.util.HashMap;
@@ -64,8 +65,9 @@ public class AuthController {
             consumes = MediaType.MULTIPART_FORM_DATA_VALUE
     )
     @Operation(summary = "Dang ky khuon mat")
-    public ResponseEntity<String> registerFace(@ModelAttribute FaceRequest req) throws IOException {
-        faceLoginService.register(req);
+    public ResponseEntity<String> registerFace(@RequestHeader("X-User-Id") String userId,
+                                               @RequestPart("image") MultipartFile image) throws IOException {
+        faceLoginService.register(userId, image);
         return ResponseEntity.ok("Dang ky thanh cong");
     }
 

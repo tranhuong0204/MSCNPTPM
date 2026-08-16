@@ -34,12 +34,12 @@ public class FaceLoginService {
 
     private final Gson gson = new Gson();
 
-    public void register(FaceRequest faceRequest) throws IOException {
-        File tempFile = File.createTempFile("upload-", faceRequest.getImage().getOriginalFilename());
-        faceRequest.getImage().transferTo(tempFile);
+    public void register(String userId, MultipartFile image) throws IOException {
+        File tempFile = File.createTempFile("upload-", image.getOriginalFilename());
+        image.transferTo(tempFile);
 
         //***
-        User user = userRepo.findById(faceRequest.getUserId())
+        User user = userRepo.findById(UUID.fromString(userId))
                 .orElseThrow(() -> new UserNotFoundException(ErrorMessage.class.getName()));
 
         double[] embedding = faceAIClient.getOriginalEmbedding(tempFile);
