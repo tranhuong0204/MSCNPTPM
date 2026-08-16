@@ -21,7 +21,14 @@ public class RoleHeaderFilter extends OncePerRequestFilter {
     protected void doFilterInternal(
             HttpServletRequest request, HttpServletResponse response, FilterChain filterChain)
             throws ServletException, IOException {
-        
+
+        String path = request.getRequestURI();
+
+        if (path.startsWith("/actuator")) {
+            filterChain.doFilter(request, response);
+            return;
+        }
+
         String role = request.getHeader("X-User-Role");
         if (role == null || role.isBlank()) {
             role = request.getHeader("X-Role");
@@ -43,4 +50,11 @@ public class RoleHeaderFilter extends OncePerRequestFilter {
 
         filterChain.doFilter(request, response);
     }
+
+    @Override
+    protected boolean shouldNotFilter(HttpServletRequest request) {
+        String path = request.getRequestURI();
+        return path.startsWith("/actuator");
+    }
+
 }
