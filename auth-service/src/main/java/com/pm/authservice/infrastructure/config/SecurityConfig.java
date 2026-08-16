@@ -49,7 +49,7 @@ public class SecurityConfig {
                         ).permitAll()
                         .requestMatchers("/user").hasRole("ADMIN")
 
-                        .requestMatchers("/registerByFace").permitAll()
+                        .requestMatchers("/registerByFace", "/auth/registerByFace").permitAll()
 
                         .requestMatchers("/actuator/**").permitAll()
 
