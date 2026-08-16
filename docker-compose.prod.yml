@@ -9,60 +9,60 @@ services:
     ports: !reset []
 
   auth-service:
-    build: !reset null
     image: ${IMAGE_PREFIX}/auth-service:latest
-    ports: !reset []
+    ports:
+      - "4005:4005"
     environment:
-      SPRING_PROFILES_ACTIVE: prod
+      SPRING_PROFILES_ACTIVE: docker
 
   patient-service:
     build: !reset null
     image: ${IMAGE_PREFIX}/patient-service:latest
     ports: !reset []
     environment:
-      SPRING_PROFILES_ACTIVE: prod
+      SPRING_PROFILES_ACTIVE: docker
 
   doctor-service:
     build: !reset null
     image: ${IMAGE_PREFIX}/doctor-service:latest
     ports: !reset []
     environment:
-      SPRING_PROFILES_ACTIVE: prod
+      SPRING_PROFILES_ACTIVE: docker
 
   clinical-service:
     build: !reset null
     image: ${IMAGE_PREFIX}/clinical-service:latest
     ports: !reset []
     environment:
-      SPRING_PROFILES_ACTIVE: prod
+      SPRING_PROFILES_ACTIVE: docker
 
   billing-service:
     build: !reset null
     image: ${IMAGE_PREFIX}/billing-service:latest
     ports: !reset []
     environment:
-      SPRING_PROFILES_ACTIVE: prod
+      SPRING_PROFILES_ACTIVE: docker
 
   appointment-service:
     build: !reset null
     image: ${IMAGE_PREFIX}/appointment-service:latest
     ports: !reset []
     environment:
-      SPRING_PROFILES_ACTIVE: prod
+      SPRING_PROFILES_ACTIVE: docker
 
   pharmacy-service:
     build: !reset null
     image: ${IMAGE_PREFIX}/pharmacy-service:latest
     ports: !reset []
     environment:
-      SPRING_PROFILES_ACTIVE: prod
+      SPRING_PROFILES_ACTIVE: docker
 
   analytics-service:
     build: !reset null
     image: ${IMAGE_PREFIX}/analytics-service:latest
     ports: !reset []
     environment:
-      SPRING_PROFILES_ACTIVE: prod
+      SPRING_PROFILES_ACTIVE: docker
 
   api-gateway:
     build: !reset null
