@@ -55,7 +55,14 @@ public class AuthController {
     )
     @Operation(summary = "Dang nhap bang khuon mat va tao access + refresh token")
     public ResponseEntity<FaceResponse> loginByFace(@RequestPart("image") MultipartFile image) throws IOException {
+        System.out.println("===== CONTROLLER LOGIN FACE =====");
+        System.out.println("Image: " + image.getOriginalFilename());
+        System.out.println("Size: " + image.getSize());
+
         Optional<FaceResponse> faceResponse = Optional.ofNullable(faceLoginService.recognize(image));
+
+        System.out.println("===== RECOGNIZE DONE =====");
+
         return faceResponse
                 .map(ResponseEntity::ok)
                 .orElseGet(() -> ResponseEntity.status(HttpStatus.UNAUTHORIZED).build());

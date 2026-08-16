@@ -58,7 +58,11 @@ public class FaceLoginService {
         File tempFile = File.createTempFile("upload-", imageFile.getOriginalFilename());
         imageFile.transferTo(tempFile);
 //        double[] input = faceAIClient.getAttendanceEmbedding(tempFile);
+        System.out.println("===== START RECOGNIZE =====");
+
+        System.out.println("Calling Python AI...");
         EmbeddingResultDto result = faceAIClient.getLoginEmbedding(tempFile);
+        System.out.println("===== PYTHON AI DONE =====");
 
         if (result.getEmbedding() == null) {
             return FaceResponse.builder()
@@ -99,16 +103,16 @@ public class FaceLoginService {
         String accessToken = null;
         String refreshToken = null;
 
-//        if (matched) {
-//            String email = bestUser.getEmail();
-//            String role = bestUser.getRole().name();
-//
-//            accessToken = jwtUtil.generateToken(email, role);
-//
-//            refreshToken = refreshTokenService
-//                    .createRefreshToken(email, role)
-//                    .getToken();
-//        }
+        if (matched) {
+            String email = bestUser.getEmail();
+            String role = bestUser.getRole().name();
+
+            accessToken = jwtUtil.generateToken(email, role);
+
+            refreshToken = refreshTokenService
+                    .createRefreshToken(email, role)
+                    .getToken();
+        }
 
         return FaceResponse.builder()
                 .userId(matched ? bestUser.getId().toString() : null)
