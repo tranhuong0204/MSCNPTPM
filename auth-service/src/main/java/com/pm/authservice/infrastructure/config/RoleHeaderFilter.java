@@ -54,7 +54,7 @@ public class RoleHeaderFilter extends OncePerRequestFilter {
     @Override
     protected boolean shouldNotFilter(HttpServletRequest request) {
         String path = request.getRequestURI();
-        return path.startsWith("/actuator") || path.equals("/registerByFace") || path.equals("/auth/registerByFace");
+        return path.startsWith("/actuator");
     }
 
 }
