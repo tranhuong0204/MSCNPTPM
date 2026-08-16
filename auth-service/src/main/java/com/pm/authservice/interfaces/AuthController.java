@@ -1,8 +1,11 @@
 package com.pm.authservice.interfaces;
 
 import com.pm.authservice.application.dto.AuthResponse;
+import com.pm.authservice.application.dto.FaceRequest;
+import com.pm.authservice.application.dto.FaceResponse;
 import com.pm.authservice.application.dto.LoginRequestDTO;
 import com.pm.authservice.application.service.AuthService;
+import com.pm.authservice.application.service.FaceLoginService;
 import com.pm.authservice.application.service.RefreshTokenService;
 import com.pm.authservice.application.service.UserService;
 import com.pm.authservice.domain.User;
@@ -12,17 +15,12 @@ import io.swagger.v3.oas.annotations.Operation;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
+import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.validation.annotation.Validated;
-import org.springframework.web.bind.annotation.DeleteMapping;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestHeader;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestParam;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
+import java.io.IOException;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -37,6 +35,7 @@ public class AuthController {
     private final AuthService authService;
     private final UserService userService;
     private final RefreshTokenService refreshTokenService;
+    private final FaceLoginService faceLoginService;
 
     @PostMapping("/login")
     @Operation(summary = "Dang nhap va tao access + refresh token")
@@ -45,6 +44,26 @@ public class AuthController {
         return authResponse
                 .map(ResponseEntity::ok)
                 .orElseGet(() -> ResponseEntity.status(HttpStatus.UNAUTHORIZED).build());
+    }
+
+    @PostMapping(value = "/loginByFace",
+            consumes = MediaType.MULTIPART_FORM_DATA_VALUE
+    )
+    @Operation(summary = "Dang nhap bang khuon mat va tao access + refresh token")
+    public ResponseEntity<FaceResponse> loginByFace(@ModelAttribute FaceRequest req) throws IOException {
+        Optional<FaceResponse> faceResponse = Optional.ofNullable(faceLoginService.recognize(req.getImage()));
+        return faceResponse
+                .map(ResponseEntity::ok)
+                .orElseGet(() -> ResponseEntity.status(HttpStatus.UNAUTHORIZED).build());
+    }
+
+    @PostMapping(value = "/registerByFace",
+            consumes = MediaType.MULTIPART_FORM_DATA_VALUE
+    )
+    @Operation(summary = "Dang ky khuon mat")
+    public ResponseEntity<String> registerFace(@ModelAttribute FaceRequest req) throws IOException {
+        faceLoginService.register(req);
+        return ResponseEntity.ok("Dang ky thanh cong");
     }
 
     @PostMapping("/signup")
