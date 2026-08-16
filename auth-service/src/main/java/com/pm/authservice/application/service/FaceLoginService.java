@@ -114,6 +114,12 @@ public class FaceLoginService {
                     .getToken();
         }
 
+        System.out.println("===== RECOGNIZE DONE =====");
+        System.out.println("Matched: " + matched);
+        System.out.println("Best User: " + (bestUser != null ? bestUser.getEmail() : "null"));
+        System.out.println("Confidence: " + best);
+
+
         return FaceResponse.builder()
                 .userId(matched ? bestUser.getId().toString() : null)
                 .name(name)
