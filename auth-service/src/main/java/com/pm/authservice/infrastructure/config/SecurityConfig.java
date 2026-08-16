@@ -49,6 +49,7 @@ public class SecurityConfig {
                                 "/validate",
                                 "/refresh",
                                 "/logout",
+                                "/loginByFace",
                                 "/logout/all",
                                 "/reset",
                                 "/h2-console/**"
