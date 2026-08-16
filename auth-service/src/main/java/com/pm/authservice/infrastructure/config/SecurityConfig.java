@@ -48,6 +48,9 @@ public class SecurityConfig {
                                 "/h2-console/**"
                         ).permitAll()
                         .requestMatchers("/user").hasRole("ADMIN")
+
+                        .requestMatchers("/registerByFace").permitAll()
+
                         .requestMatchers("/actuator/**").permitAll()
 
                         .anyRequest().authenticated()

@@ -64,7 +64,6 @@ public class AuthController {
             consumes = MediaType.MULTIPART_FORM_DATA_VALUE
     )
     @Operation(summary = "Dang ky khuon mat")
-    @PreAuthorize("hasAnyRole('USER','ADMIN')")
     public ResponseEntity<String> registerFace(@ModelAttribute FaceRequest req) throws IOException {
         faceLoginService.register(req);
         return ResponseEntity.ok("Dang ky thanh cong");
