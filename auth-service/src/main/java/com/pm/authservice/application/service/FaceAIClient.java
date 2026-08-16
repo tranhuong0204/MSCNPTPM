@@ -20,7 +20,7 @@ public class FaceAIClient {
     private final RestTemplate restTemplate = new RestTemplate();
 
     public double[] getOriginalEmbedding(File imageFile) {
-        String url = "http://172.22.128.1:5000/original_embedding";
+        String url = "http://host.docker.internal:5000/original_embedding";
 
         FileSystemResource resource = new FileSystemResource(imageFile);
 
