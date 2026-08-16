@@ -55,13 +55,22 @@ services:
       SPRING_PROFILES_ACTIVE: docker
       CORS_ALLOWED_ORIGINS: ${CORS_ALLOWED_ORIGINS:-http://localhost:5173,http://localhost:3000}
       JAVA_OPTS: "-Xms128m -Xmx256m -XX:+UseSerialGC -Xss256k"
+# vì api-gateway cần biết các service khác để định tuyến nên cần khai báo các biến môi trường cho các service khác
+      AUTH_SERVICE_URL: http://auth-service:4005
+      DOCTOR_SERVICE_URL: http://doctor-service:4003
+      PATIENT_SERVICE_URL: http://patient-service:4000
+      CLINICAL_SERVICE_URL: http://clinical-service:4007
+      BILLING_SERVICE_URL: http://billing-service:4001
+      APPOINTMENT_SERVICE_URL: http://appointment-service:4002
+      PHARMACY_SERVICE_URL: http://pharmacy-service:4008
+      ANALYTICS_SERVICE_URL: http://analytics-service:4006
     deploy:
       resources:
         limits:
          memory: 300M
     depends_on:
       eureka-server:
-        condition: service_healthy
+        condition: service_started
     healthcheck:
       test: ["CMD-SHELL", "curl -fsS http://localhost:4004/actuator/health || exit 1"]
       interval: 15s
@@ -91,7 +100,7 @@ services:
       postgres:
         condition: service_healthy
       eureka-server:
-        condition: service_healthy
+        condition: service_started
     healthcheck:
       test: ["CMD-SHELL", "curl -fsS http://localhost:4005/actuator/health || exit 1"]
       interval: 15s
@@ -120,7 +129,7 @@ services:
       postgres:
         condition: service_healthy
       eureka-server:
-        condition: service_healthy
+        condition: service_started
     healthcheck:
       test: ["CMD-SHELL", "curl -fsS http://localhost:4000/actuator/health || exit 1"]
       interval: 15s
@@ -151,7 +160,7 @@ services:
       postgres:
         condition: service_healthy
       eureka-server:
-        condition: service_healthy
+        condition: service_started
     healthcheck:
       test: ["CMD-SHELL", "curl -fsS http://localhost:4003/actuator/health || exit 1"]
       interval: 15s
@@ -182,7 +191,7 @@ services:
       postgres:
         condition: service_healthy
       eureka-server:
-        condition: service_healthy
+        condition: service_started
     healthcheck:
       test: ["CMD-SHELL", "curl -fsS http://localhost:4007/actuator/health || exit 1"]
       interval: 15s
@@ -211,7 +220,7 @@ services:
       postgres:
         condition: service_healthy
       eureka-server:
-        condition: service_healthy
+        condition: service_started
     healthcheck:
       test: ["CMD-SHELL", "curl -fsS http://localhost:4001/actuator/health || exit 1"]
       interval: 15s
@@ -240,7 +249,7 @@ services:
       postgres:
         condition: service_healthy
       eureka-server:
-        condition: service_healthy
+        condition: service_started
     healthcheck:
       test: ["CMD-SHELL", "curl -fsS http://localhost:4002/actuator/health || exit 1"]
       interval: 15s
@@ -269,7 +278,7 @@ services:
       postgres:
         condition: service_healthy
       eureka-server:
-        condition: service_healthy
+        condition: service_started
     healthcheck:
       test: ["CMD-SHELL", "curl -fsS http://localhost:4008/actuator/health || exit 1"]
       interval: 15s
@@ -329,7 +338,7 @@ services:
       postgres:
         condition: service_healthy
       eureka-server:
-        condition: service_healthy
+        condition: service_started
       kafka:
         condition: service_started
     healthcheck:

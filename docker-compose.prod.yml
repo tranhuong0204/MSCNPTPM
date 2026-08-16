@@ -14,6 +14,8 @@ services:
       - "4005:4005"
     environment:
       SPRING_PROFILES_ACTIVE: docker
+#vi sao la docker luc dau la prod
+
 
   patient-service:
     build: !reset null
