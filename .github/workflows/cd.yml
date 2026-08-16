@@ -4,6 +4,7 @@ on:
   push:
     branches:
       - learning
+      - feature/face-login
     paths:
       - 'auth-service/**'
       - 'doctor-service/**'
