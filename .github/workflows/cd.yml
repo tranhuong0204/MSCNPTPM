@@ -46,6 +46,7 @@ jobs:
           services=()
 
           for service in \
+            api-gateway \
             auth-service \
             doctor-service \
             patient-service \
