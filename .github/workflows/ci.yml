@@ -5,10 +5,12 @@ on:
     branches:
       - main
       - learning
+      - feature/face-login
   pull_request:
     branches:
       - main
       - learning
+      - feature/face-login
 
 jobs:
 
