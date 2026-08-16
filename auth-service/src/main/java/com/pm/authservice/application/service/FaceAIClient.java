@@ -40,7 +40,7 @@ public class FaceAIClient {
     }
 
     public EmbeddingResultDto getLoginEmbedding(File imageFile) {
-        String url = "http://host.docker.internal:5000:6000/attendance_embedding";
+        String url = "http://host.docker.internal:6000/attendance_embedding";
 
         FileSystemResource resource = new FileSystemResource(imageFile);
 
