@@ -17,5 +17,4 @@ public class LoginRequestDTO {
     @NotBlank(message = "Mật khẩu không được để trống")
     @Size(min = 8, message = "Mật khẩu phải dài ít nhất 8 ký tự")
     private String password;
-
 }
