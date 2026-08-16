@@ -63,6 +63,7 @@ spring:
           filters:
             - StripPrefix=1
 
+
         - id: auth-service-route
           uri: ${services.auth.url}
           predicates:
