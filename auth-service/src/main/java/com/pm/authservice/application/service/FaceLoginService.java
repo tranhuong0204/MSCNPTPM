@@ -90,23 +90,28 @@ public class FaceLoginService {
         }
 
 //        String name = (best > 0.6 && bestUser != null)
-        String name = (best > 0.6 && bestUser != null)
+        boolean matched = best > 0.6 && bestUser != null;
+
+        String name = matched
                 ? bestUser.getEmail()
                 : "Unknown";
 
         String accessToken = null;
         String refreshToken = null;
 
-        if (bestUser != null) {
-            accessToken = jwtUtil.generateToken(bestUser.getEmail(), bestUser.getRole().name());
-
-            refreshToken = refreshTokenService
-                    .createRefreshToken(bestUser.getEmail(), bestUser.getRole().name())
-                    .getToken();
-        }
+//        if (matched) {
+//            String email = bestUser.getEmail();
+//            String role = bestUser.getRole().name();
+//
+//            accessToken = jwtUtil.generateToken(email, role);
+//
+//            refreshToken = refreshTokenService
+//                    .createRefreshToken(email, role)
+//                    .getToken();
+//        }
 
         return FaceResponse.builder()
-                .userId(bestUser != null ? bestUser.getId().toString() : null)
+                .userId(matched ? bestUser.getId().toString() : null)
                 .name(name)
                 .confidence(best)
                 .message(result.getStatus())
