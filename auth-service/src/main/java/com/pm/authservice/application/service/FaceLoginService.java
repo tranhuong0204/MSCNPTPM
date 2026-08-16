@@ -94,7 +94,7 @@ public class FaceLoginService {
         }
 
 //        String name = (best > 0.6 && bestUser != null)
-        boolean matched = best > 0.6 && bestUser != null;
+        boolean matched = best > 0.2 && bestUser != null;
 
         String name = matched
                 ? bestUser.getEmail()
