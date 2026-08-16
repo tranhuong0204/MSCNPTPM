@@ -54,8 +54,8 @@ public class AuthController {
             consumes = MediaType.MULTIPART_FORM_DATA_VALUE
     )
     @Operation(summary = "Dang nhap bang khuon mat va tao access + refresh token")
-    public ResponseEntity<FaceResponse> loginByFace(@ModelAttribute FaceRequest req) throws IOException {
-        Optional<FaceResponse> faceResponse = Optional.ofNullable(faceLoginService.recognize(req.getImage()));
+    public ResponseEntity<FaceResponse> loginByFace(@RequestPart("image") MultipartFile image) throws IOException {
+        Optional<FaceResponse> faceResponse = Optional.ofNullable(faceLoginService.recognize(image));
         return faceResponse
                 .map(ResponseEntity::ok)
                 .orElseGet(() -> ResponseEntity.status(HttpStatus.UNAUTHORIZED).build());
