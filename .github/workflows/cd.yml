@@ -6,6 +6,7 @@ on:
       - learning
       - feature/face-login
     paths:
+      - 'api-gateway/**'
       - 'auth-service/**'
       - 'doctor-service/**'
       - 'patient-service/**'
