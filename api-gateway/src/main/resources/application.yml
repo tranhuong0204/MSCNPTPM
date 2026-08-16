@@ -61,6 +61,7 @@ spring:
           predicates:
             - Path=/auth/login, /auth/signup, /auth/validate, /auth/refresh, /auth/reset, /auth/loginByFace
 
+
           filters:
             - StripPrefix=1
 
