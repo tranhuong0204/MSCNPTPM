@@ -11,6 +11,7 @@ import org.springframework.security.web.authentication.UsernamePasswordAuthentic
 @Configuration
 @EnableMethodSecurity
 public class SecurityConfig {
+
     private final RoleHeaderFilter roleHeaderFilter;
 
     public SecurityConfig(RoleHeaderFilter roleHeaderFilter) {
@@ -25,8 +26,10 @@ public class SecurityConfig {
                 .authorizeHttpRequests(auth -> auth
                         .requestMatchers("/v3/api-docs/**", "/swagger-ui/**", "/swagger-ui.html").permitAll()
                         .requestMatchers("/internal/**").permitAll() // cho phép các service gọi nhau internal
+                        .requestMatchers("/actuator/**").permitAll()
                         .anyRequest().authenticated()
                 )
+
                 .build();
     }
 }

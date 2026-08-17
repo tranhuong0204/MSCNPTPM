@@ -15,6 +15,26 @@ import java.util.Collections;
 
 @Component
 public class RoleHeaderFilter extends OncePerRequestFilter {
+
+    @Override
+    protected boolean shouldNotFilter(HttpServletRequest request) {
+
+        String path = request.getRequestURI();
+
+        // Không xử lý authentication cho Actuator
+        if (path.equals("/actuator")
+                || path.startsWith("/actuator/")) {
+            return true;
+        }
+
+        // Không xử lý authentication cho internal APIs
+        if (path.startsWith("/internal/")) {
+            return true;
+        }
+
+        return false;
+    }
+
     @Override
     protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain filterChain)
             throws ServletException, IOException {
