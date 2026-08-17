@@ -53,6 +53,11 @@ public class JwtValidationGatewayFilterFactory extends AbstractGatewayFilterFact
                             requestBuilder.header("X-User-Id", roleResponse.getUserId());
                         }
 
+                        System.out.println("userId = " + roleResponse.getUserId());
+                        System.out.println("email = " + roleResponse.getEmail());
+                        System.out.println("role = " + roleResponse.getRole());
+                        System.out.println("status = " + roleResponse.getStatus());
+
                         var mutatedExchange = exchange.mutate()
                                 .request(requestBuilder.build())
                                 .build();
@@ -60,6 +65,7 @@ public class JwtValidationGatewayFilterFactory extends AbstractGatewayFilterFact
                         return chain.filter(mutatedExchange);
                     })
                     .onErrorResume(error -> {
+                        error.printStackTrace();
                         exchange.getResponse().setStatusCode(HttpStatus.UNAUTHORIZED);
                         return exchange.getResponse().setComplete();
                     });

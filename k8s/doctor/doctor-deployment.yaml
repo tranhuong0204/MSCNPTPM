@@ -1,0 +1,91 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: doctor-service
+  namespace: patient-management
+
+spec:
+  replicas: 1
+
+  selector:
+    matchLabels:
+      app: doctor-service
+
+  template:
+    metadata:
+      labels:
+        app: doctor-service
+
+    spec:
+      containers:
+        - name: doctor-service
+
+          image: ghcr.io/tranhuong0204/mscnptpm/doctor-service:latest
+          imagePullPolicy: Always
+
+          ports:
+            - containerPort: 4003
+
+          env:
+            - name: SERVER_PORT
+              value: "4003"
+
+            # PostgreSQL
+            - name: SPRING_DATASOURCE_DRIVER_CLASS_NAME
+              value: "org.postgresql.Driver"
+
+            - name: SPRING_DATASOURCE_URL
+              value: "jdbc:postgresql://postgres:5432/doctor_db"
+
+            - name: SPRING_DATASOURCE_USERNAME
+              valueFrom:
+                secretKeyRef:
+                  name: postgres-secret
+                  key: POSTGRES_USER
+
+            - name: SPRING_DATASOURCE_PASSWORD
+              valueFrom:
+                secretKeyRef:
+                  name: postgres-secret
+                  key: POSTGRES_PASSWORD
+
+            # Hibernate
+            - name: APP_DDL_AUTO
+              value: "update"
+
+            # Eureka
+            - name: APP_EUREKA_URL
+              value: "http://eureka-server:8761/eureka/"
+
+            # Other services
+            - name: APP_PHARMACY_SERVICE_URL
+              value: "http://pharmacy-service:4008"
+
+            - name: APP_CLINICAL_SERVICE_URL
+              value: "http://clinical-service:4007"
+
+          readinessProbe:
+            httpGet:
+              path: /actuator/health/readiness
+              port: 4003
+            initialDelaySeconds: 40
+            periodSeconds: 10
+            timeoutSeconds: 5
+            failureThreshold: 6
+
+          livenessProbe:
+            httpGet:
+              path: /actuator/health/liveness
+              port: 4003
+            initialDelaySeconds: 60
+            periodSeconds: 20
+            timeoutSeconds: 5
+            failureThreshold: 3
+
+          resources:
+            requests:
+              cpu: "250m"
+              memory: "512Mi"
+            limits:
+              cpu: "1"
+              memory: "1Gi"

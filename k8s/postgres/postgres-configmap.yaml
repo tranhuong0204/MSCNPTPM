@@ -1,0 +1,15 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: postgres-init
+  namespace: patient-management
+data:
+  postgres-init.sql: |
+    CREATE DATABASE auth_db;
+    CREATE DATABASE patient_db;
+    CREATE DATABASE doctor_db;
+    CREATE DATABASE clinical_db;
+    CREATE DATABASE billing_db;
+    CREATE DATABASE appointment_db;
+    CREATE DATABASE pharmacy_db;
+    CREATE DATABASE analytics_db;

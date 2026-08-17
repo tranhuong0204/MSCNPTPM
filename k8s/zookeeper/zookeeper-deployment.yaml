@@ -1,0 +1,34 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: zookeeper
+  namespace: patient-management
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: zookeeper
+
+  template:
+    metadata:
+      labels:
+        app: zookeeper
+
+    spec:
+      containers:
+        - name: zookeeper
+          image: zookeeper:latest
+          imagePullPolicy: IfNotPresent
+
+          ports:
+            - containerPort: 2181
+
+          env:
+            - name: ZOO_MY_ID
+              value: "1"
+
+            - name: ZOO_PORT
+              value: "2181"
+
+            - name: ZOO_SERVERS
+              value: "server.1=0.0.0.0:2888:3888;2181"

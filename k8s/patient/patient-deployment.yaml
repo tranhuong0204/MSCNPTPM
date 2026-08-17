@@ -1,0 +1,90 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: patient-service
+  namespace: patient-management
+
+spec:
+  replicas: 1
+
+  selector:
+    matchLabels:
+      app: patient-service
+
+  template:
+    metadata:
+      labels:
+        app: patient-service
+
+    spec:
+      containers:
+        - name: patient-service
+
+          image: ghcr.io/tranhuong0204/mscnptpm/patient-service:latest
+          imagePullPolicy: Always
+
+          ports:
+            - containerPort: 4000
+
+          env:
+            # Spring Boot
+            - name: SERVER_PORT
+              value: "4000"
+
+            # PostgreSQL
+            - name: SPRING_DATASOURCE_DRIVER_CLASS_NAME
+              value: "org.postgresql.Driver"
+
+            - name: SPRING_DATASOURCE_URL
+              value: "jdbc:postgresql://postgres:5432/patient_db"
+
+            - name: SPRING_DATASOURCE_USERNAME
+              valueFrom:
+                secretKeyRef:
+                  name: postgres-secret
+                  key: POSTGRES_USER
+
+            - name: SPRING_DATASOURCE_PASSWORD
+              valueFrom:
+                secretKeyRef:
+                  name: postgres-secret
+                  key: POSTGRES_PASSWORD
+
+            # JPA
+            - name: APP_DDL_AUTO
+              value: "update"
+
+            # Kafka
+            - name: APP_KAFKA_BOOTSTRAP_SERVERS
+              value: "kafka:9092"
+
+            # Eureka
+            - name: APP_EUREKA_URL
+              value: "http://eureka-server:8761/eureka/"
+
+          readinessProbe:
+            httpGet:
+              path: /actuator/health/readiness
+              port: 4000
+            initialDelaySeconds: 40
+            periodSeconds: 10
+            timeoutSeconds: 5
+            failureThreshold: 6
+
+          livenessProbe:
+            httpGet:
+              path: /actuator/health/liveness
+              port: 4000
+            initialDelaySeconds: 60
+            periodSeconds: 20
+            timeoutSeconds: 5
+            failureThreshold: 3
+
+          resources:
+            requests:
+              cpu: "250m"
+              memory: "512Mi"
+
+            limits:
+              cpu: "1000m"
+              memory: "1Gi"
