@@ -30,6 +30,7 @@ public class AuthService {
                     System.out.println("RAW PASSWORD: " + loginRequestDTO.getPassword());
                     System.out.println("HASH IN DB: " + u.getPassword());
 
+
                     boolean match = passwordEncoder.matches(
                             loginRequestDTO.getPassword(),
                             u.getPassword()
